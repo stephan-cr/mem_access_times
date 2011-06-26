@@ -1,0 +1,17 @@
+# -*- mode: org -*-
+
+#+TITLE:Memory Access Times
+#+AUTHOR:Stephan Creutz
+
+* Background
+  - based on [[file:refs.bib::big-data][Adam Jacobs. The pathologies of big data. Queue,
+    7(6):10­19, 2009.]]
+  - the paper shows that reading memory in random order could be 10
+    times slower than in sequential order
+* TLB info
+  - there are several levels of TLB caches
+  - http://www.tomshardware.com/reviews/Intel-i7-nehalem-cpu,2041-11.html
+  - Optiplex 755
+    - instruction TLB: 4K, 4-way, 128 entries
+    - L1 data TLB: 4K pages, 4-way, 16 entries
+    - data TLB: 4K, 4-way, 256 entries
