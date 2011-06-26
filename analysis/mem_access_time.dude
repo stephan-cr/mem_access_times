@@ -1,0 +1,80 @@
+# -*- mode: python -*-
+#
+# Copyright (c) 2011, Stephan Creutz
+# Distributed under the MIT License
+
+# 1. requires "dude" (https://bitbucket.org/db7/dude/)
+# 2. adapt the following lines to your needs
+# 3. run with "dude -f mem_access_time.dude run"
+# 4. get the result in table with "dude -f mem_access_time.dude sum"
+
+import os
+import subprocess
+
+import dude.summaries
+
+dude_version = 2
+name = "memory access times"
+timeout = 500
+
+cacheline_size = 64
+l1_cache_size = 32 * 1024
+l2_cache_size = 6 * 1024 * 1024
+page_size = 4096
+physical_memsize = 8 * 1024 * 1024 * 1024
+
+optspace = {
+    'b' : [1000, 10000, 100000, 1000000000],
+    'k' : list(set([1, 2, cacheline_size / 4, page_size / (4 * 2), page_size / 4, 2 * page_size / 4, page_size, l1_cache_size / 4])),
+    's' : [x / 4 for x in [physical_memsize / 8, physical_memsize / 4, physical_memsize / 2, physical_memsize]]
+}
+
+def s_greater_equal_k(optpt):
+    return optpt['s'] >= optpt['k']
+
+def s_greater_equal_b(optpt):
+    return optpt['s'] >= optpt['b']
+
+def b_greater_equal_k(optpt):
+    return optpt['b'] >= optpt['k']
+
+constraints = [s_greater_equal_k, s_greater_equal_b, b_greater_equal_k]
+
+runs = 3
+raw_output_dir = 'raw'
+
+binary = os.getenv('HOME') + '/projects/incubator/experiments/mem_access_time'
+execute_remote = True
+
+def get_cmd(optpt):
+    cmd_opts = ' -B ' + str(optpt['b']) + ' -K ' + str(optpt['k']) + \
+        ' -S ' + str(optpt['s'])
+    if execute_remote:
+        return 'ssh -oServerAliveInterval=10 stephan@se19 \'./mem_access_time %s\'' % cmd_opts
+    return binary + cmd_opts
+
+def prepare_global():
+    if execute_remote:
+        cmd = ['scp', binary, 'stephan@se19:']
+        proc = subprocess.Popen(cmd)
+        proc.communicate()
+        proc.wait()
+
+def prepare_exp(optpt):
+    pass
+
+def finish_exp(optpt):
+    pass
+
+sum_output_dir = 'output'
+
+run_time_sum = dude.summaries.LineSelect(
+    name = 'run_time_sum',
+    groupby = [],
+    header = 'time',
+    regex = r'time:',
+    split = (lambda line: line.split('time: ')[1])
+)
+
+summaries = [run_time_sum]
+filters = {}
