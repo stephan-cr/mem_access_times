@@ -22,7 +22,7 @@ timeout = 500
 binary         = root + '/../src/mem_access_time'
 host           = 'user@host'
 execute_remote = False
-runs           = 3
+max_runs       = 3
 
 # machine dependent parameters
 cacheline_size   = 64
@@ -45,7 +45,7 @@ optspace = {
                             physical_memsize / 4, 
                             physical_memsize / 2,
                             physical_memsize]],
-    'run': range(0,runs)
+    'run': range(1,max_runs+1)
 }
 
 def s_greater_equal_k(optpt):
