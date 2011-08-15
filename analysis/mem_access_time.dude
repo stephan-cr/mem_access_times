@@ -12,21 +12,40 @@ import os
 import subprocess
 
 import dude.summaries
+from dude.defaults import *
 
-dude_version = 2
+dude_version = 3
 name = "memory access times"
 timeout = 500
 
-cacheline_size = 64
-l1_cache_size = 32 * 1024
-l2_cache_size = 6 * 1024 * 1024
-page_size = 4096
+# binary and execution configuration
+binary         = root + '/../src/mem_access_time'
+host           = 'user@host'
+execute_remote = False
+runs           = 3
+
+# machine dependent parameters
+cacheline_size   = 64
+l1_cache_size    = 32 * 1024
+l2_cache_size    = 6 * 1024 * 1024
+page_size        = 4096
 physical_memsize = 8 * 1024 * 1024 * 1024
 
+
 optspace = {
-    'b' : [1000, 10000, 100000, 1000000000],
-    'k' : list(set([1, 2, cacheline_size / 4, page_size / (4 * 2), page_size / 4, 2 * page_size / 4, page_size, l1_cache_size / 4])),
-    's' : [x / 4 for x in [physical_memsize / 8, physical_memsize / 4, physical_memsize / 2, physical_memsize]]
+    'b'  : [1000, 10000, 100000, 1000000000],
+    'k'  : list(set([1, 2, 
+                     cacheline_size / 4, 
+                     page_size / (4 * 2), 
+                     page_size / 4, 
+                     2 * page_size / 4, 
+                     page_size, 
+                     l1_cache_size / 4])),
+    's'  : [x / 4 for x in [physical_memsize / 8, 
+                            physical_memsize / 4, 
+                            physical_memsize / 2,
+                            physical_memsize]],
+    'run': range(0,runs)
 }
 
 def s_greater_equal_k(optpt):
@@ -40,33 +59,22 @@ def b_greater_equal_k(optpt):
 
 constraints = [s_greater_equal_k, s_greater_equal_b, b_greater_equal_k]
 
-runs = 3
-raw_output_dir = 'raw'
-
-binary = os.getenv('HOME') + '/projects/incubator/experiments/mem_access_time'
-execute_remote = True
-
-def get_cmd(optpt):
+def cmdl_exp(optpt):
     cmd_opts = ' -B ' + str(optpt['b']) + ' -K ' + str(optpt['k']) + \
         ' -S ' + str(optpt['s'])
     if execute_remote:
-        return 'ssh -oServerAliveInterval=10 stephan@se19 \'./mem_access_time %s\'' % cmd_opts
+        return 'ssh -oServerAliveInterval=10 ' + host + ' \'./mem_access_time %s\'' % cmd_opts
     return binary + cmd_opts
 
 def prepare_global():
     if execute_remote:
-        cmd = ['scp', binary, 'stephan@se19:']
+        cmd = ['scp', binary, host + ':']
         proc = subprocess.Popen(cmd)
         proc.communicate()
         proc.wait()
 
 def prepare_exp(optpt):
     pass
-
-def finish_exp(optpt):
-    pass
-
-sum_output_dir = 'output'
 
 run_time_sum = dude.summaries.LineSelect(
     name = 'run_time_sum',
@@ -77,4 +85,4 @@ run_time_sum = dude.summaries.LineSelect(
 )
 
 summaries = [run_time_sum]
-filters = {}
+
