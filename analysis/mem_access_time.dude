@@ -8,7 +8,6 @@
 # 3. run with "dude -f mem_access_time.dude run"
 # 4. get the result in table with "dude -f mem_access_time.dude sum"
 
-import os
 import subprocess
 
 import dude.summaries
@@ -34,15 +33,15 @@ physical_memsize = 8 * 1024 * 1024 * 1024
 
 optspace = {
     'b'  : [1000, 10000, 100000, 1000000000],
-    'k'  : list(set([1, 2, 
-                     cacheline_size / 4, 
-                     page_size / (4 * 2), 
-                     page_size / 4, 
-                     2 * page_size / 4, 
-                     page_size, 
+    'k'  : list(set([1, 2,
+                     cacheline_size / 4,
+                     page_size / (4 * 2),
+                     page_size / 4,
+                     2 * page_size / 4,
+                     page_size,
                      l1_cache_size / 4])),
-    's'  : [x / 4 for x in [physical_memsize / 8, 
-                            physical_memsize / 4, 
+    's'  : [x / 4 for x in [physical_memsize / 8,
+                            physical_memsize / 4,
                             physical_memsize / 2,
                             physical_memsize]],
     'run': range(1,max_runs+1)
@@ -60,10 +59,10 @@ def b_greater_equal_k(optpt):
 constraints = [s_greater_equal_k, s_greater_equal_b, b_greater_equal_k]
 
 def cmdl_exp(optpt):
-    cmd_opts = ' -B ' + str(optpt['b']) + ' -K ' + str(optpt['k']) + \
-        ' -S ' + str(optpt['s'])
+    cmd_opts = '-B %d -K %d -S %d' % (optpt['b'], optpt['k'], optpt['s'])
     if execute_remote:
-        return 'ssh -oServerAliveInterval=10 ' + host + ' \'./mem_access_time %s\'' % cmd_opts
+        return 'ssh -oServerAliveInterval=10 %s \'./mem_access_time %s\'' % \
+            (host, cmd_opts)
     return binary + cmd_opts
 
 def prepare_global():
@@ -85,4 +84,3 @@ run_time_sum = dude.summaries.LineSelect(
 )
 
 summaries = [run_time_sum]
-
