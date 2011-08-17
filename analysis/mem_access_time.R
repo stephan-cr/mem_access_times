@@ -12,6 +12,11 @@
 library(lattice)
 library(latticeExtra)
 
+# check latticeExtra package version since only later support the "ggplot2like"
+# theme
+latticeExtra_version <- packageDescription('latticeExtra', fields=c('Version'))
+stopifnot(package_version(latticeExtra_version) >= package_version('0.6-14'))
+
 # read file content, the first line is expected to have a title for each column.
 # the result is assigned to a so called data frame
 read.table('output/run_time_sum', header=TRUE) -> t
