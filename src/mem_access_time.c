@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Stephan Creutz
+ * Copyright (c) 2011, 2012, Stephan Creutz
  * Distributed under the MIT License
  */
 
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
     return 1;
   }
 
-  // precalculate random indizes to access the array
+  // precalculate random indices to access the array
   unsigned *random_indizes = malloc(B / K * sizeof(unsigned));
   if (!random_indizes) {
     fprintf(stderr, "not enough mem.\n");
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
   free(m);
   free(random_indizes);
 
-  // just to add a depedency such the compiler doesn't optimize r away
+  // just to add a dependency such the compiler doesn't optimize r away
   printf("%u\n", r);
 
   // calculate the difference between the start and stop timestamp
